@@ -18,7 +18,7 @@ roots = ["Jemmet.Proofs"]
 # Test support modules (so the conformance exe's imports are buildable).
 [[lean_lib]]
 name = "JemmetTest"
-roots = ["Test.Conformance", "Test.HttpConformance", "Test.IntegrationConformance"]
+roots = ["Test.Conformance", "Test.HttpConformance", "Test.IntegrationConformance", "Test.ServeConformance", "Test.EventConformance"]
 
 # The Conn conformance suite (RFC 002 test obligation). `lake test` runs it.
 [[lean_exe]]

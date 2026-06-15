@@ -9,3 +9,5 @@ import Jemmet.Proofs.RouterTotal
 import Jemmet.Proofs.ResponseWf
 import Jemmet.Proofs.ChunkedBounds
 import Jemmet.Proofs.FramingSoundStream
+import Jemmet.Proofs.KeepAlive
+import Jemmet.Proofs.EventSemantics

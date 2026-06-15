@@ -190,9 +190,77 @@ Added:
   central security obligation. Axiom-clean (`propext`, `Quot.sound`); the smuggling +
   chunked corpus (44 HTTP checks) exercises it operationally.
 
-Pending (next increments, tracked honestly in the proof-trust-test matrix):
-- Fuzz harnesses over the full byte→boundary pipeline and the chunked decoder (a
-  TESTED obligation, distinct from the now-proven theorem).
-- `framing_ok_cl` witness lemma; chunked **response** body streaming (`ChunkSource`);
-  a byte-level `serialize` status-line structural theorem (promote from goldens).
-- Then M2: keep-alive boundary + serve loop (RFC 007), `PlainIotaktConn` (RFC 008).
+#### RFC 007 — serve loop (keep-alive boundary) + KeepAlive proof: implemented
+
+The transport-independent serve layer over the `Conn` abstraction (the iotakt
+`runStepAuto` event loop wires on top in M2; this is the logic it drives).
+
+Added:
+- `Jemmet/Serve/ConnState.lean` — the per-connection phase (`reading`/`dispatching`/
+  `writing`/`closing`/`closed`), the keep-alive policy (HTTP/1.1 persistent unless
+  `Connection: close`; HTTP/1.0 the reverse), and the **pure request-boundary machine**:
+  `nextRequest` parses exactly one request off the head; `drain` consumes every complete
+  pipelined request in a buffer in order, leaving the partial remainder for the next
+  read; a malformed request stops the drain (no resync — RFC 003 danger-zone rule).
+- `Jemmet/Serve/Loop.lean` — `serveBuffer` (drain → route → run handler → keep-alive
+  policy → serialize; an unserializable handler response becomes a 500, never a
+  malformed wire response) and a `Conn`-generic driver (`recvAll`/`sendAll`/`driveConn`/
+  `serveConn`): recv → process → send → keep-alive, carrying the pipelined remainder
+  exactly. Works over any `Conn` instance, including `FakeConn`.
+- `Jemmet/Proofs/KeepAlive.lean` — **KeepAlive** (the RFC 007 proof obligation,
+  §3.2.7): `nextRequest_one_iff_parsed` (a boundary step is exactly one `parseRequest`,
+  so each consumed unit is one complete, unambiguously-framed request),
+  `nextRequest_one_fwd` (its remainder is the exact input suffix), and
+  `drainAux_fwd`/`keepAlive_boundary` (draining a pipelined batch leaves the cursor at a
+  forward position on the same never-mutated buffer — the carried remainder is exactly
+  the unconsumed suffix, so requests are consumed strictly in order with nothing dropped,
+  duplicated, or replayed). Builds on `parseRequest_parsed`. Axiom-clean
+  (`propext`, `Quot.sound`).
+- `Test/ServeConformance.lean` — the driver exercised through `FakeConn` (no sockets):
+  pipelined keep-alive (two in-order responses), the keep-alive/close Connection policy,
+  routing through the driver (404), a request split across reads reassembled via the
+  carried remainder, and HTTP/1.0 default-close. 6/6 checks pass (113 total).
+
+This completes the **pure** RFC 007 core and the last headline proof in the v0.1 set.
+The iotakt-bound parts — the `runStepAuto` event loop, per-`FdKey` demux, stale-event
+handling, and timeouts (RFC 008/014) — wire on top in M2 once iotakt is vendored.
+
+#### RFC 014 — driver event-semantics model + M1.5 checkpoint: implemented
+
+The highest-risk seam (the henret→iotakt event boundary) made a model-level contract,
+testable without real iotakt — the gate that precedes binding `PlainIotaktConn`.
+
+Added:
+- `Jemmet/Serve/Event.lean` — the event-semantics model: `LoopEvent`
+  (`newConnection`/`dataReady`/`tick`), the driver state keyed by `FdKey`, and
+  `dispatchBatch` enforcing the contract — ordering (newConnection → I/O → tick),
+  stale-event drop (an event for a torn-down/unknown key is dropped with a counter;
+  generation-protected, so a reused raw fd with a new generation is a *different*
+  `FdKey` with fresh state), readiness coalescing (each key stepped at most once per
+  batch — fairness), idle-timeout sweep on `tick`, and write interest armed iff owned
+  output is non-empty. `runTrace` is the deterministic fake event-trace runner.
+- `Jemmet/Proofs/EventSemantics.lean` — the invariants: `no_step_after_remove` /
+  `removeConn_find_none` / `stepConn_stale` (**no event is processed for a removed
+  `FdKey`** — RFC 014's proof obligation), `addConn_live` (newConnection makes a key
+  live for a same-batch `dataReady`), and `needsWrite_iff` (write-interest accounting,
+  RFC 010). Axiom-clean (`propext`, `Quot.sound`).
+- `Test/EventConformance.lean` — **the M1.5 adversarial event-trace suite**: stale event
+  dropped, readiness coalesced to one step, I/O-before-tick ordering, close-then-reuse-
+  raw-fd via generation (old gen dead / new gen live), stale event for a reused fd's old
+  generation dropped, partial-write re-arm (drained ⇒ write interest off), idle-timeout
+  close, batch ordering (newConnection before a same-batch dataReady that appears earlier
+  in the list), and pipelined steps across batches. 9/9 pass (122 total).
+
+This clears the **M1.5 driver-model checkpoint**: the event-trace runner passes the
+adversarial suite and the no-stale / write-interest invariants are proven. With RFC 007
+(keep-alive) and RFC 014 (event semantics) in place, the remaining serve-layer pieces
+are the real-transport bindings.
+
+Pending (next, tracked in the proof-trust-test matrix):
+- **M2 / iotakt** (the real-transport phase): vendor iotakt 0.13.1 under `vendor/`,
+  write `PlainIotaktConn` (RFC 008) against `recvAck`/`sendAck`/`enableWrite`/
+  `disableWrite`/`closeConnection`/`runStepAuto`/`FdKey`, and bind the model driver here
+  to iotakt's real `EventLoop`. Record the RFC 001 iotakt-v1.0 pin decision in the
+  vendoring commit.
+- RFC 010 egress-boundedness model check; RFC 015 handler task-handoff; TESTED-tier
+  fuzzers; chunked **response** streaming.

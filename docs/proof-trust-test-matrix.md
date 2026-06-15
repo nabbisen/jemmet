@@ -28,6 +28,8 @@ on Lean's foundational axioms (`propext`, `Quot.sound`), confirmed via
 | Body path is forward, buffer-preserving, in-bounds; chunked decode never drops/dups/reorders | `decodeChunked_fwd`, `consumeTrailers_fwd`, `takeCRLF_fwd` | `Proofs/ChunkedBounds` | 003 |
 | Full request (head+body) consumes a forward bounded prefix; remainder is an exact suffix | `parseRequest_parsed` | `Proofs/ChunkedBounds` | 003/004 |
 | **Raw-stream FramingSound**: total; deterministic (no second interpretation); parsed framing is the unique accepted decision (ambiguous framing rejects); remainder is the exact suffix (no drop/dup/reorder) | `framing_sound_stream`, `parseRequest_trichotomy`, `parseRequest_deterministic`, `parseRequest_parsed_unique_framing` | `Proofs/FramingSoundStream` | 003 |
+| **KeepAlive boundary**: each step is one complete request; pipelined remainder carried exactly (forward suffix, same buffer) — no boundary confusion on reuse | `keepAlive_boundary`, `drainAux_fwd`, `nextRequest_one_fwd`, `nextRequest_one_iff_parsed` | `Proofs/KeepAlive` | 007 |
+| **No event for a removed `FdKey`**: stale `dataReady`/`tick` dropped, never stepped (generation-protected); write interest iff owned output > 0 | `no_step_after_remove`, `removeConn_find_none`, `stepConn_stale`, `addConn_live`, `needsWrite_iff` | `Proofs/EventSemantics` | 014 |
 
 ## TESTED (executable conformance)
 
@@ -40,6 +42,8 @@ on Lean's foundational axioms (`propext`, `Quot.sound`), confirmed via
 | Limits → status (414 / 431) and split reads → `needMore` with exact pipelined remainder | `Test/HttpConformance` | pass |
 | Routing (static/param/404/405-with-Allow), serialization (status line/CL/keep-alive/close/HEAD/204), CRLF-injection rejection, and end-to-end parse→route→respond→serialize | `Test/IntegrationConformance` | 14/14 |
 | Chunked decode (round-trip, multi-chunk, trailers, malformed→400, over-cap→413, incomplete→needMore), Content-Length assembly, pipelined remainder, CL.TE on full path | `Test/HttpConformance` (chunked+body) | 15/15 |
+| Serve loop over `FakeConn`: pipelined keep-alive (in-order responses), Connection close/keep-alive policy, 404 routing, request split across reads, HTTP/1.0 default-close | `Test/ServeConformance` | 6/6 |
+| Adversarial event-trace (M1.5): stale-drop, coalescing, I/O-before-tick, close-then-reuse-fd by generation, partial-write re-arm, idle-timeout, batch ordering | `Test/EventConformance` | 9/9 |
 
 ## ASSUMED (siblings / platform; proven+tested in their own matrices)
 
@@ -63,8 +67,10 @@ on Lean's foundational axioms (`propext`, `Quot.sound`), confirmed via
   promote from tested to proven.
 - Keep-alive boundary (RFC 007), serve loop (RFC 007), `PlainIotaktConn` (RFC 008).
 
-The M1 **proof obligations are complete**: raw-stream framing soundness (no smuggling),
-parser bounds safety, body-path bounds, router totality, and response well-formedness
-all build clean, and the parse → route → respond → serialize pipeline runs end-to-end.
-What remains for M1 is TESTED-tier hardening (fuzzers) and a few optional proof
-strengthenings; the next structural work is M2 (serve loop + `PlainIotaktConn`).
+The M1 proof obligations are complete, RFC 007's keep-alive boundary is proven, and the
+**M1.5 driver-model checkpoint is cleared**: the fake event-trace runner passes the
+adversarial suite and the no-stale-event / write-interest invariants are proven. The
+pure serve layer (RFC 007 keep-alive + RFC 014 event semantics) runs and is model-
+checked over `FakeConn` end-to-end. What remains is M2 — the real-transport phase:
+`PlainIotaktConn` (RFC 008) and binding the model driver to iotakt's `runStepAuto`
+`EventLoop`, plus RFC 010 egress-boundedness, RFC 015 handler hand-off, and fuzzers.
