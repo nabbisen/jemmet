@@ -1,0 +1,47 @@
+name: CI
+
+# RFC 012 gate. Linux-only in v0.1 (matches iotakt's native backend).
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Installs elan and the toolchain pinned in `lean-toolchain` (Lean 4.15.0).
+      - name: Install Lean toolchain
+        uses: leanprover/lean-action@v1
+        with:
+          build: false
+          test: false
+
+      - name: Build core library
+        run: lake build Jemmet
+
+      - name: Build proven core
+        run: lake build JemmetProofs
+
+      - name: Cleanliness guard (no project-local sorry/axiom/unsafe — RFC 011/012)
+        run: python3 scripts/check-cleanliness.py
+
+      - name: Conn conformance suite (RFC 002)
+        run: lake test
+
+      # --- Stages below activate at later milestones (kept here as the gate map) ---
+
+      # - name: Fuzz smoke (request-line / header / chunked / framing)   # M1+ (RFC 011/012)
+      #   run: lake exe fuzz-smoke
+
+      # - name: Plaintext E2E via curl                                   # M2 (RFC 008/012)
+      #   run: ./scripts/e2e-plaintext.sh
+
+      # - name: HTTPS E2E via curl/openssl                               # M3, gated on kroopt (RFC 009/012)
+      #   run: ./scripts/e2e-https.sh
+
+      # - name: Matrix-honesty (theorem count vs proof-trust-test matrix) # M1+ (RFC 011)
+      #   run: python3 scripts/check-cleanliness.py --matrix docs/proof-trust-test-matrix.md

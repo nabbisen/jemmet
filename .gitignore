@@ -1,2 +1,14 @@
-# cache and other artifacts produced by Lean's Lake build tool
-.lake/
+# Lake build output
+/.lake/
+/build/
+/lake-packages/
+*.olean
+*.ilean
+*.trace
+
+# Vendored dependency working copies (kept as pinned tarballs; see RFC 012)
+/vendor/*/build/
+
+# Editor / OS
+.DS_Store
+*.swp

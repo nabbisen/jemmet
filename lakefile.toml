@@ -1,0 +1,26 @@
+name = "jemmet"
+version = "0.0.1-dev"
+defaultTargets = ["Jemmet"]
+testDriver = "conformance"
+
+# Core: the proven/tested HTTP edge. No external dependencies — the trusted
+# computing base is the Lean runtime/toolchain only (RFC 011); iotakt/kroopt are
+# vendored later (M2/M3) as tarball deps (RFC 001/012).
+[[lean_lib]]
+name = "Jemmet"
+
+# Proofs in their own library so CI can build and audit them separately
+# (RFC 011/012: assert 0 sorry/axiom/unsafe in the proven core).
+[[lean_lib]]
+name = "JemmetProofs"
+roots = ["Jemmet.Proofs"]
+
+# Test support modules (so the conformance exe's imports are buildable).
+[[lean_lib]]
+name = "JemmetTest"
+roots = ["Test.Conformance"]
+
+# The Conn conformance suite (RFC 002 test obligation). `lake test` runs it.
+[[lean_exe]]
+name = "conformance"
+root = "Test.Main"

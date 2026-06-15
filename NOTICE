@@ -1,0 +1,10 @@
+jemmet — a formally-disciplined HTTP/1.1 edge server for Lean 4
+Copyright 2026 nabbisen and the jemmet contributors
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+jemmet is the HTTP edge of a three-project Lean stack and consumes, as vendored
+pinned dependencies (added at later milestones), the sibling projects:
+  - iotakt  — non-blocking I/O   (Apache-2.0)
+  - kroopt  — TLS secure channel (Apache-2.0)
+Their licenses and notices accompany their vendored sources when introduced.
