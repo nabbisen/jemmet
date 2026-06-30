@@ -84,8 +84,8 @@ on Lean's foundational axioms (`propext`, `Quot.sound`), confirmed via
 - Keep-alive boundary (RFC 007), serve loop (RFC 007), `PlainIotaktConn` (RFC 008).
 
 The M1 proof obligations are complete, RFC 007's keep-alive boundary is proven, the
-**M1.5 driver-model checkpoint is cleared**, and **M2 has begun**: iotakt 0.13.1 is
-vendored (Lean-only core, pinned per RFC 001) and `PlainIotaktConn` (RFC 008) binds
+**M1.5 driver-model checkpoint is cleared**, and **M2 has begun**: iotakt 0.14.6 is a
+pinned Lake git dependency (the henret-free `Iotakt.Model` package, pinned per RFC 001) and `PlainIotaktConn` (RFC 008) binds
 jemmet's `Conn` typeclass to iotakt's real model types — verified over a deterministic
 model loop (ack discipline, partial-write re-arm, FdKey demux, error mapping). The same
 `Conn` interface that every proof and `FakeConn` test targets is now satisfied by the

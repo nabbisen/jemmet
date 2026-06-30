@@ -4,7 +4,22 @@ All notable changes to jemmet are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/); jemmet releases as version-named
 tarballs at logical breakpoints (RFC 012).
 
-## [Unreleased]
+## [0.4.1] — 2026-06-30 — Design docs synced to the git-dependency policy
+
+### Docs — RFC 001 amended; design docs synced to the git-dependency policy
+- **RFC 001** amended in place (stays in `rfcs/done/`): a dated *Amendment (v0.4.1)* records
+  the mechanism change (vendored tarball → pinned Lake git dependency) and the current pins;
+  the historical M2 vendoring decision is preserved and marked *superseded in v0.4.1*. Scope,
+  the three-project boundary, byte-level iotakt consumption, and the non-goals are unchanged.
+- Synced the forward dependency-policy language to the git-dependency model in
+  `docs/jemmet_requirements_v2.md` (§2.6 Dependency and Compatibility Policy),
+  `docs/jemmet_rfc_roadmap_v2.md` (RFC 001 / RFC 012 descriptions), and
+  `docs/proof-trust-test-matrix.md` (M2 status narrative).
+- `docs/audit-v0.1.md` is left as a dated **v0.1 snapshot**: a forward note points to this
+  policy change without altering the recorded findings (which correctly describe the
+  vendored state at audit time).
+- `docs/compatibility.md` and `README.md` already carried the git-dependency model (v0.4.1
+  dependency pivot); no further change needed.
 
 ## [0.4.0] — 2026-06-15 — plaintext HTTP/1.1 edge
 

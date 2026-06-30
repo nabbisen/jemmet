@@ -105,7 +105,8 @@ integrate plaintext, then TLS, then harden.
 Locks jemmet's identity (verified HTTP edge), the three-project boundary, the
 byte-level iotakt consumption (no reuse of iotakt's HTTP modules), the non-goals,
 and the **iotakt-v1.0 gate decision** (cut v1.0 vs. pin a `-dev` candidate) plus
-the vendored-tarball dependency + compatibility-matrix policy.
+the pinned git-dependency + compatibility-matrix policy (amended in v0.4.1: siblings
+are pinned Lake git deps, not vendored).
 *Outputs:* boundary statement, non-goals, dependency decision. *Proof/test:* none.
 
 ### RFC 002 — The connection abstraction (keystone)
@@ -200,7 +201,8 @@ the theorem count matches the matrix).
 **Milestone:** M4 · **Layer:** project ops · **Deps:** 003–011
 Build + proof build + unit suites + plaintext E2E (curl) + HTTPS E2E (gated) +
 fuzzers + matrix-honesty guard; tarball release layout (version in name, files at
-root); the compatibility matrix; vendored iotakt/kroopt pinning.
+root); the compatibility matrix; pinned git-dependency iotakt/kroopt versions
+(commit-locked by `lake-manifest.json`).
 *Outputs:* CI gate, release checklist.
 
 ### RFC 013 — HTTP/2 readiness and future protocols

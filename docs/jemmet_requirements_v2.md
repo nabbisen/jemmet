@@ -258,8 +258,10 @@ requirements, not prose:
 
 ## 2.6 Dependency and Compatibility Policy
 
-1. jemmet depends on iotakt and kroopt as **vendored tarball releases** (the
-   henret→iotakt pattern), pinned to specific versions, never on unpinned trees.
+1. jemmet depends on iotakt, henret, and kroopt as **pinned Lake git dependencies**
+   (the henret→iotakt pattern — `require … from git "<url>" @ "<rev>"`): independent
+   projects referenced by revision and commit-locked by `lake-manifest.json`, never
+   vendored (no sibling source in this repo) and never on unpinned trees.
 2. jemmet maintains a **compatibility matrix**: jemmet vX is validated against
    iotakt vY and kroopt vZ. Because the three projects release independently, this
    coupling MUST be explicit in `docs/compatibility.md` and the CHANGELOG.

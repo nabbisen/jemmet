@@ -7,6 +7,12 @@ in this pass are built, gated (`scripts/ci.sh`), and tested (`lake test`, exit 0
 test modules, 94 proven theorems (all axiom-clean), 270 conformance checks across 11 suites,
 and 5,400 fuzz iterations.
 
+> **Note (post-audit, v0.4.1).** This audit reflects the **v0.1 (v0.4.0)** state, when
+> iotakt (0.13.1) and henret (0.15.2) were consumed as *vendored* Lean-only trees. After
+> this audit, the dependency-consumption mechanism changed: siblings are now **pinned Lake
+> git dependencies** (iotakt 0.14.6, henret 0.34.4), per RFC 001 *Amendment (v0.4.1)* and
+> `docs/compatibility.md`. The findings below are unchanged — they record the audited state.
+
 ---
 
 ## 1. Fulfilment of the "done" RFCs
