@@ -1,7 +1,7 @@
 # RFC 007: Serve loop and connection driver
 
 ## Status
-Proposed (revised per senior review v1→v2)
+Implemented (M2 — serve loop / driver; keep-alive boundary proven)
 
 ## Summary
 The driver-owned event loop that pulls iotakt events via `runStepAuto`,

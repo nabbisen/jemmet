@@ -1,7 +1,7 @@
 # RFC 011: Proof, trust, and test matrix
 
 ## Status
-Proposed (revised per senior review v1→v2)
+Implemented (M1–M2 scope — proof/trust/test matrix + matrix-honesty guard. Deferred: TLS rows at M3 / 0.6.0)
 
 ## Summary
 jemmet's claim taxonomy — what is PROVEN, TESTED, ASSUMED, OUTSCOPE — the theorem

@@ -8,3 +8,4 @@ import Jemmet.Http.Request
 import Jemmet.Http.Status
 import Jemmet.Http.Response
 import Jemmet.Http.Chunked
+import Jemmet.Http.Stream

@@ -19,5 +19,6 @@
 import Jemmet.Conn.Conn
 import Jemmet.Conn.Fake
 import Jemmet.Http
+import Jemmet.Observe
 import Jemmet.Route
 import Jemmet.Serve

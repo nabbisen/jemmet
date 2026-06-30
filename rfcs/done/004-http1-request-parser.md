@@ -1,7 +1,7 @@
 # RFC 004: HTTP/1.1 request parser and bounds safety
 
 ## Status
-Proposed (revised per senior review v1→v2)
+Implemented (M1 — request parser; bounds-safety proven; fuzzed)
 
 ## Summary
 The bounds-safe byte reader and the HTTP/1.1 request-line + header parser, the

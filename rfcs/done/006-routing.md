@@ -1,7 +1,7 @@
 # RFC 006: Routing
 
 ## Status
-Proposed
+Implemented (M1 — routing; totality + determinism proven)
 
 ## Summary
 jemmet's own router: method + path dispatch with `:param` capture, a typed

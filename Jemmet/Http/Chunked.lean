@@ -127,6 +127,12 @@ def parseRequest (r0 : Reader) (lim : Limits := {}) : RequestResult :=
   | .needMore       => .needMore
   | .reject e       => .reject e
   | .parsed head r1 =>
+    -- RFC 9112 §3.2: an HTTP/1.1 request MUST carry exactly one Host header; any request
+    -- with more than one Host is rejected. (Host value well-formedness is covered by header
+    -- value validation.)
+    let hostCount := (head.headers.getAll "host").length
+    if (head.version == .http11 && hostCount != 1) || hostCount > 1 then .reject .badHost
+    else
     match decideFraming head.headers with
     | .error _ => .reject .badFraming
     | .ok fr =>

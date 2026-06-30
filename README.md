@@ -52,9 +52,10 @@ lake test             # the Conn conformance suite
 python3 scripts/check-cleanliness.py   # assert 0 sorry/axiom/unsafe (RFC 011/012)
 ```
 
-Toolchain: Lean 4.15.0 (pinned in `lean-toolchain`). No external dependencies yet —
-the trusted computing base is the Lean runtime/toolchain only; iotakt and kroopt are
-vendored as pinned tarballs at M2/M3 (RFC 001/012).
+Toolchain: Lean 4.15.0 (pinned in `lean-toolchain`). The trusted computing base is the
+Lean runtime/toolchain only; iotakt and henret are consumed as **pinned Lake git
+dependencies** (separate projects, fetched into the gitignored `.lake/packages/`, locked by
+`lake-manifest.json`), and kroopt (TLS) joins the same way at M3 (RFC 001/009/012).
 
 ## Design notes
 

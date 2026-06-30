@@ -1,3 +1,4 @@
+import Jemmet.Proofs.Lifecycle
 /-
   Jemmet.Proofs — umbrella for the proven core (RFC 011 matrix PROVEN rows).
   Currently: FakeConn determinism (RFC 002).
@@ -11,3 +12,8 @@ import Jemmet.Proofs.ChunkedBounds
 import Jemmet.Proofs.FramingSoundStream
 import Jemmet.Proofs.KeepAlive
 import Jemmet.Proofs.EventSemantics
+import Jemmet.Proofs.EgressBound
+import Jemmet.Proofs.HandlerPolicy
+import Jemmet.Proofs.StreamBound
+import Jemmet.Proofs.LimitStatus
+import Jemmet.Proofs.ObserveSafe

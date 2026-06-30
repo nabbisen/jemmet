@@ -30,12 +30,25 @@ def serverError (method : Method) : ByteArray :=
   | .ok b    => b
   | .error _ => "HTTP/1.1 500 Internal Server Error\r\nconnection: close\r\n\r\n".toUTF8
 
+/-- The deterministic HTTP error response for a parse rejection (§3.4: every malformed input
+    maps to a status, not undefined behaviour). The status mirrors `ParseError.statusCode`
+    (proven mapping, RFC 010); the connection is closed afterward — a malformed request is a
+    desync risk, so there is no resync (RFC 003 danger-zone rule). -/
+def errorResponse (e : ParseError) : HttpResponse :=
+  let st : Status := match e with
+    | .uriTooLong           => .uriTooLong
+    | .badVersion           => .httpVersionNotSupported
+    | .headerFieldsTooLarge => .headerFieldsTooLarge
+    | .bodyTooLarge         => .payloadTooLarge
+    | _                     => .badRequest
+  { status := st, headers := Headers.empty, body := .empty, keepAlive := false }
+
 /-- Process every complete pipelined request in `buf`: route, run the handler, apply the
     keep-alive policy, serialize. Returns the concatenated responses, the unconsumed
     remainder (carried to the next read), and whether to keep the connection alive. -/
 def serveBuffer (router : Router) (lim : Limits) (buf : ByteArray) :
     IO (ByteArray × ByteArray × Bool) := do
-  let (reqs, rest, _e) := drain lim (Reader.ofBytes buf)
+  let (reqs, rest, dend) := drain lim (Reader.ofBytes buf)
   let mut out : ByteArray := .empty
   let mut keepAlive := true
   for req in reqs do
@@ -53,6 +66,15 @@ def serveBuffer (router : Router) (lim : Limits) (buf : ByteArray) :
       | .ok b    => b
       | .error _ => serverError head.method
     out := out ++ bytes
+  -- a malformed request: emit the deterministic error response and close (no resync)
+  match dend with
+  | .rejected e =>
+    let bytes := match serialize { method := .get } (errorResponse e) with
+      | .ok b    => b
+      | .error _ => serverError .get
+    out := out ++ bytes
+    keepAlive := false
+  | .needMore => pure ()
   pure (out, rest.rest, keepAlive)
 
 /-! ### Transport-independent recv/send pumps over `Conn` -/

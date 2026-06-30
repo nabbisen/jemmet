@@ -23,7 +23,7 @@ M0  Project startup & design freeze
 M1  Pure HTTP core (no wiring)          ← parallel-safe; the "start now" bucket
 M2  Plaintext edge server               ← gated only on iotakt (confirmed)
 M3  TLS edge server                     ← gated on kroopt IotaktTransport validation
-M4  Hardening & v0.1 release
+M4  Hardening (0.6.0)
 (future) HTTP/2, compression, client mode
 ```
 
@@ -72,7 +72,7 @@ without close_notify, ALPN variants, slow-draining TLS client, graceful shutdown
 with pending close_notify) passes, **not just** happy-path curl/browser HTTPS; the
 HTTP path is byte-identical to M2; plaintext and TLS listeners coexist.
 
-### M4 — Hardening & v0.1 release
+### M4 — Hardening (0.6.0)
 Error-policy completeness, full limit/timeout matrix, observability (redacted),
 docs (mdbook), conformance/interop suite, the proof/trust/test matrix finalized,
 CI gate (build + proofs + unit + plaintext E2E + HTTPS E2E + fuzzers), compatibility

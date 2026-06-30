@@ -1,7 +1,7 @@
 # RFC 014: Driver and henret/iotakt event semantics
 
 ## Status
-Proposed (must be accepted before M2; gates the M1.5 checkpoint)
+Implemented (M1.5 — driver event semantics + deterministic fake event-trace runner; proven)
 
 ## Summary
 Makes the driver's interaction with the henret→iotakt event model a **model-level

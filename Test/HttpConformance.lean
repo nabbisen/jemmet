@@ -157,7 +157,7 @@ def clHead (n : Nat) : String := s!"POST /p HTTP/1.1\r\nHost: x\r\nContent-Lengt
 
 def grpChunked : List Check :=
   [ ("chunked encode→decode round-trips",
-      (match parseFullB ("POST /p HTTP/1.1\r\nTransfer-Encoding: chunked\r\n\r\n".toUTF8
+      (match parseFullB ("POST /p HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\n\r\n".toUTF8
                           ++ encodeChunked "hello world".toUTF8) with
        | .parsed req _ => baEq req.body "hello world".toUTF8 | _ => false)),
     ("chunked multi-chunk assembles in order",

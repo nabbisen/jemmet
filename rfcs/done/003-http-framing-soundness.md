@@ -1,7 +1,7 @@
 # RFC 003: HTTP framing soundness and smuggling defense
 
 ## Status
-Proposed (revised per senior review v1→v2)
+Implemented (M1 — framing soundness / no-smuggling proven over the raw stream)
 
 ## Summary
 Defines jemmet's HTTP/1.1 framing and the **raw-stream** proof that, for any finite

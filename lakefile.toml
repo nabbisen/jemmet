@@ -3,9 +3,24 @@ version = "0.0.1-dev"
 defaultTargets = ["Jemmet"]
 testDriver = "conformance"
 
+# iotakt — non-blocking I/O model (RFC 001 / RFC 008), an independent project consumed as a
+# pinned Lake git dependency. jemmet binds iotakt's henret-free **model** package (the repo
+# root); the native runtime/bridge is iotakt's own concern, seamed at deployment (RFC 009).
+[[require]]
+name = "iotakt"
+git  = "https://github.com/nabbisen/iotakt"
+rev  = "v0.14.6"
+
+# henret — actor/task runtime model (RFC 015 handler hand-off), an independent project consumed
+# as a pinned Lake git dependency. v0.34.4 = commit ad0ceab4ebed2884c9165be44154dca2c1f4816f.
+[[require]]
+name = "henret"
+git  = "https://github.com/nabbisen/henret"
+rev  = "v0.34.4"
+
 # Core: the proven/tested HTTP edge. No external dependencies — the trusted
-# computing base is the Lean runtime/toolchain only (RFC 011); iotakt/kroopt are
-# vendored later (M2/M3) as tarball deps (RFC 001/012).
+# computing base is the Lean runtime/toolchain only (RFC 011). The iotakt binding
+# lives in its own library (below) so the core stays transport-independent.
 [[lean_lib]]
 name = "Jemmet"
 
@@ -15,10 +30,22 @@ name = "Jemmet"
 name = "JemmetProofs"
 roots = ["Jemmet.Proofs"]
 
+# The iotakt transport binding (RFC 008): `PlainIotaktConn`, the `Conn` instance over
+# iotakt's model types. Isolated from the core so only this library depends on iotakt.
+[[lean_lib]]
+name = "JemmetIotakt"
+roots = ["Jemmet.Iotakt"]
+
+# The henret handler-handoff binding (RFC 015): maps jemmet's HandlerPhase onto henret's
+# real TaskState. Isolated so only this library depends on henret.
+[[lean_lib]]
+name = "JemmetHenret"
+roots = ["Jemmet.Henret"]
+
 # Test support modules (so the conformance exe's imports are buildable).
 [[lean_lib]]
 name = "JemmetTest"
-roots = ["Test.Conformance", "Test.HttpConformance", "Test.IntegrationConformance", "Test.ServeConformance", "Test.EventConformance"]
+roots = ["Test.Conformance", "Test.HttpConformance", "Test.IntegrationConformance", "Test.ServeConformance", "Test.EventConformance", "Test.IotaktConformance", "Test.HandlerConformance", "Test.Fuzz", "Test.LimitConformance", "Test.ObserveConformance", "Test.HenretConformance", "Test.InteropCorpus", "Test.LifecycleConformance"]
 
 # The Conn conformance suite (RFC 002 test obligation). `lake test` runs it.
 [[lean_exe]]

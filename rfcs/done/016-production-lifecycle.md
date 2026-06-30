@@ -1,7 +1,7 @@
 # RFC 016: Production lifecycle — shutdown, leak detection, observability, failure modes
 
 ## Status
-Proposed (M4)
+Implemented (M4 scope for the plaintext edge — graceful shutdown + leak audit proven; failure-modes doc. Deferred: TLS re-validation at 0.6.0)
 
 ## Summary
 Defines the operational lifecycle gates a v0.1 edge server must meet: graceful

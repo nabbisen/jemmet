@@ -1,13 +1,10 @@
-# Lake build output
+# Lake build output + fetched dependency packages (Lake materializes pinned
+# git deps into .lake/packages from the committed lake-manifest.json lockfile).
 /.lake/
 /build/
-/lake-packages/
 *.olean
 *.ilean
 *.trace
-
-# Vendored dependency working copies (kept as pinned tarballs; see RFC 012)
-/vendor/*/build/
 
 # Editor / OS
 .DS_Store

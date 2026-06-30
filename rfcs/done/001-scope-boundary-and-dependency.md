@@ -1,7 +1,7 @@
 # RFC 001: Scope, boundary, non-goals, and the iotakt-v1.0 dependency
 
 ## Status
-Proposed
+Implemented (M0 — scope/boundary fixed; iotakt-v1.0 dependency decision recorded)
 
 ## Summary
 Locks jemmet's identity as the verified HTTP/1.1 **edge** server of the
@@ -54,6 +54,18 @@ Decision options:
 Either way: iotakt and kroopt are consumed as **vendored tarball releases**, pinned
 by version; jemmet maintains a **compatibility matrix** (jemmet vX ↔ iotakt vY ↔
 kroopt vZ) in `docs/compatibility.md`, since the three release independently.
+
+### Decision recorded (M2, RFC 008 vendoring)
+**Pin the candidate (the fallback).** iotakt v1.0 is the iotakt maintainer's release
+to cut, not jemmet's, and it is not yet cut. jemmet therefore pins **iotakt 0.13.1** as
+a vendored tarball and treats it as the frozen v1.0-equivalent, which the iotakt→jemmet
+handoff explicitly sanctions: the consumer surface is "effectively frozen" and the
+remaining iotakt work (kqueue, `recvInto`) is **additive-only and cannot break what
+jemmet builds on** (HANDOFF §0, §6.2). The pin is vendored under
+`vendor/iotakt-0.13.1`, built **Lean-only** (the pure `Iotakt.Model`; the native epoll
+backend + henret bridge are seamed in at deployment per RFC 008). jemmet bumps to the
+tagged iotakt v1.0 when it lands; because the surface is additive-only, that bump is a
+re-pin, not a redesign.
 
 ## Proof Obligations
 None (scope document).

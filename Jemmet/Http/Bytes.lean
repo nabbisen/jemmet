@@ -35,8 +35,6 @@ def ofBytes (b : ByteArray) : Reader := { data := b, off := 0 }
 /-- Bytes remaining from the current offset. -/
 @[inline] def remaining (r : Reader) : Nat := r.data.size - r.off
 
-/-- Peek the current byte, if any (`none` at end). Safe: never panics. -/
-@[inline] def peek? (r : Reader) : Option UInt8 := byteAt r.data r.off
 
 /-- The remaining suffix — the carried remainder for pipelining. -/
 @[inline] def rest (r : Reader) : ByteArray := r.data.extract r.off r.data.size

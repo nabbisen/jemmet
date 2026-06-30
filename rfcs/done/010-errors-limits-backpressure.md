@@ -1,7 +1,7 @@
 # RFC 010: Errors, limits, timeouts, and write-backpressure
 
 ## Status
-Proposed (revised per senior review v1→v2; accept before RFC 007/008 complete)
+Implemented (M2 — limits/timeouts/backpressure/error-policy for the plaintext edge; egress proven. Deferred: the TLS ciphertext egress tier → RFC 009)
 
 ## Summary
 The deterministic malformed-input→status mapping, the resource-limit matrix, read

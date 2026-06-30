@@ -1,7 +1,7 @@
 # RFC 002: The connection abstraction (keystone)
 
 ## Status
-Proposed (revised per senior review v1→v2)
+Implemented (M1 — Conn keystone + FakeConn; determinism proof + conformance)
 
 ## Summary
 Defines the `Conn` interface — `recv`/`send`/`flush`/`close`/`metadata` — that all

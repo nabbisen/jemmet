@@ -88,6 +88,7 @@ inductive ParseError where
   | badFraming            -- 400 (CL+TE, multiple CL, bad TE — a smuggling refusal)
   | badChunk              -- 400 (malformed chunk size/data/terminator/trailer)
   | bodyTooLarge          -- 413
+  | badHost               -- 400 (HTTP/1.1 request missing Host, or duplicate Host — RFC 9112 §3.2)
   deriving Repr, DecidableEq, BEq, Inhabited
 
 def ParseError.statusCode : ParseError → Nat

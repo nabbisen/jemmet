@@ -1,7 +1,7 @@
 # RFC 012: CI, packaging, and release gates
 
 ## Status
-Proposed
+Implemented (M2 scope — CI gate: build/proofs/conformance/fuzz; tarball + committed-manifest policy. Deferred: HTTPS E2E step → M3)
 
 ## Summary
 How jemmet is built, verified, tested, packaged, and released — the CI gate, the
@@ -31,6 +31,7 @@ publishing.
   RFCs moved `proposed→done` as they land.
 - Dependencies: vendored `iotakt-vY` and `kroopt-vZ` tarballs; `docs/compatibility.md`
   records the validated triple.
+- CI builds against the committed `lake-manifest.json` (relative `./vendor/...` path deps) and must **not** run `lake update`, so the build is reproducible and portable across checkout locations.
 
 ## Proof / Test Obligations
 The gate runs the proof build and all test suites; the matrix-honesty guard is a

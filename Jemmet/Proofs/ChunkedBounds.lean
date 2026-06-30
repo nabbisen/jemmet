@@ -129,31 +129,33 @@ theorem parseRequest_parsed {r0 r' : Reader} {lim : Limits} {req : HttpRequest} 
   | parsed head r1 =>
     have hf1 : Fwd r0 r1 := parseRequestHead_parsed hwf hph
     simp only [hph] at h
-    cases hdf : decideFraming head.headers with
-    | error e => simp only [hdf] at h; simp at h
-    | ok fr =>
-      simp only [hdf] at h
-      cases fr with
-      | none =>
-        simp only [RequestResult.parsed.injEq] at h
-        obtain ⟨_, hr1⟩ := h; subst hr1; exact hf1
-      | contentLength n =>
-        cases htn : r1.takeN n with
-        | none => simp only [htn] at h; split at h <;> simp_all
-        | some p =>
-          obtain ⟨body, r2⟩ := p
-          have hf2 : Fwd r1 r2 := takeN_fwd htn
-          simp only [htn] at h
-          split at h
-          · simp_all
-          · injection h with _ hr2; subst hr2; exact hf1.trans hf2
-      | chunked =>
-        cases hdc : decodeChunked r1 lim ByteArray.empty (lim.maxBodyBytes + 2) with
-        | needMore => simp only [hdc] at h; simp at h
-        | reject e => simp only [hdc] at h; simp at h
-        | done body r2 =>
-          simp only [hdc, RequestResult.parsed.injEq] at h
-          obtain ⟨_, hr2⟩ := h; subst hr2
-          exact hf1.trans (decodeChunked_fwd _ hf1.wf hdc)
+    split at h
+    · simp at h
+    · cases hdf : decideFraming head.headers with
+      | error e => simp only [hdf] at h; simp at h
+      | ok fr =>
+        simp only [hdf] at h
+        cases fr with
+        | none =>
+          simp only [RequestResult.parsed.injEq] at h
+          obtain ⟨_, hr1⟩ := h; subst hr1; exact hf1
+        | contentLength n =>
+          cases htn : r1.takeN n with
+          | none => simp only [htn] at h; split at h <;> simp_all
+          | some p =>
+            obtain ⟨body, r2⟩ := p
+            have hf2 : Fwd r1 r2 := takeN_fwd htn
+            simp only [htn] at h
+            split at h
+            · simp_all
+            · injection h with _ hr2; subst hr2; exact hf1.trans hf2
+        | chunked =>
+          cases hdc : decodeChunked r1 lim ByteArray.empty (lim.maxBodyBytes + 2) with
+          | needMore => simp only [hdc] at h; simp at h
+          | reject e => simp only [hdc] at h; simp at h
+          | done body r2 =>
+            simp only [hdc, RequestResult.parsed.injEq] at h
+            obtain ⟨_, hr2⟩ := h; subst hr2
+            exact hf1.trans (decodeChunked_fwd _ hf1.wf hdc)
 
 end Jemmet.Proofs

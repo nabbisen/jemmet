@@ -65,29 +65,31 @@ theorem parseRequest_parsed_unique_framing {r0 rest : Reader} {lim : Limits} {re
   | reject e => simp only [hph] at h; simp at h
   | parsed head r1 =>
     simp only [hph] at h
-    cases hdf : decideFraming head.headers with
-    | error e => simp only [hdf] at h; simp at h
-    | ok fr =>
-      simp only [hdf] at h
-      cases fr with
-      | none =>
-        injection h with hreq _; subst hreq; exact hdf
-      | contentLength n =>
-        cases htn : r1.takeN n with
-        | none => simp only [htn] at h; split at h <;> simp_all
-        | some p =>
-          obtain ⟨body, r2⟩ := p
-          simp only [htn] at h
-          split at h
-          · simp_all
-          · injection h with hreq _; subst hreq; exact hdf
-      | chunked =>
-        cases hdc : decodeChunked r1 lim ByteArray.empty (lim.maxBodyBytes + 2) with
-        | needMore => simp only [hdc] at h; simp at h
-        | reject e => simp only [hdc] at h; simp at h
-        | done body r2 =>
-          simp only [hdc] at h
+    split at h
+    · simp at h
+    · cases hdf : decideFraming head.headers with
+      | error e => simp only [hdf] at h; simp at h
+      | ok fr =>
+        simp only [hdf] at h
+        cases fr with
+        | none =>
           injection h with hreq _; subst hreq; exact hdf
+        | contentLength n =>
+          cases htn : r1.takeN n with
+          | none => simp only [htn] at h; split at h <;> simp_all
+          | some p =>
+            obtain ⟨body, r2⟩ := p
+            simp only [htn] at h
+            split at h
+            · simp_all
+            · injection h with hreq _; subst hreq; exact hdf
+        | chunked =>
+          cases hdc : decodeChunked r1 lim ByteArray.empty (lim.maxBodyBytes + 2) with
+          | needMore => simp only [hdc] at h; simp at h
+          | reject e => simp only [hdc] at h; simp at h
+          | done body r2 =>
+            simp only [hdc] at h
+            injection h with hreq _; subst hreq; exact hdf
 
 /-- **The raw-stream FramingSound theorem.** For any input, `parseRequest` either needs
     more bytes, rejects deterministically, or consumes exactly one request whose framing

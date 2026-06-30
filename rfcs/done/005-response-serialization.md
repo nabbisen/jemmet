@@ -1,7 +1,7 @@
 # RFC 005: Response model and HTTP/1.1 serialization
 
 ## Status
-Proposed (revised per senior review v1→v2)
+Implemented (M1 — HTTP/1.1 response serialization + chunked streaming; well-formedness proven)
 
 ## Summary
 The `HttpResponse` model and its serialization to a correct HTTP/1.1 byte stream,

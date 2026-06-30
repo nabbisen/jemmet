@@ -1,7 +1,7 @@
 /-
   Jemmet.Conn.Conn — the connection abstraction (keystone).
 
-  Implements RFC 002 (`rfcs/proposed/002-connection-abstraction.md`):
+  Implements RFC 002 (`rfcs/done/002-connection-abstraction.md`):
   one byte-level interface, plaintext both directions, that PlainIotaktConn (M2),
   TlsConn (M3) and FakeConn (M1) all implement, so the HTTP code path is identical
   for plaintext and TLS. Every operation returns a `ConnProgress` so the driver

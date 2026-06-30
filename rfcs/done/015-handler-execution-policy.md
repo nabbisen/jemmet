@@ -1,7 +1,7 @@
 # RFC 015: Handler execution policy
 
 ## Status
-Proposed (must be accepted before M2)
+Implemented (M2 — handler policy: inline fast path + verified async model + henret binding)
 
 ## Summary
 Defines how `Handler := RequestCtx → IO HttpResponse` executes relative to the

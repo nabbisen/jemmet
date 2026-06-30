@@ -76,6 +76,32 @@ def grpResponse : List Check :=
                                 body := .fixed "x".toUTF8, keepAlive := true } with
        | .error .invalidBodyForStatus => true | _ => false)) ]
 
+/-! ### Malformed input → deterministic HTTP error response (§3.4, RFC 010) -/
+
+def errorConsistency : List Check :=
+  [ ("errorResponse status code matches the proven ParseError.statusCode (all errors)",
+       [ParseError.badRequestLine, .uriTooLong, .badVersion, .headerFieldsTooLarge, .badHeader,
+        .badLineDiscipline, .badFraming, .badChunk, .bodyTooLarge, .badHost].all
+        (fun e => (errorResponse e).status.code == e.statusCode)) ]
+
+def serveStr (raw : String) (lim : Limits := {}) : IO (String × Bool) := do
+  let (out, _rest, ka) ← serveBuffer router lim raw.toUTF8
+  pure (asStr out, ka)
+
+def serveErrors : IO (List Check) := do
+  let (s505, k505)   ← serveStr "GET / HTTP/2.0\r\nHost: x\r\n\r\n"
+  let (s413, k413)   ← serveStr "POST /submit HTTP/1.1\r\nHost: x\r\nContent-Length: 100\r\n\r\n" {maxBodyBytes := 8}
+  let (s400, k400)   ← serveStr "POST /submit HTTP/1.1\r\nHost: x\r\nContent-Length: 5\r\nTransfer-Encoding: chunked\r\n\r\n"
+  let (sHost, _)     ← serveStr "GET / HTTP/1.1\r\n\r\n"
+  let (sPipe, kPipe) ← serveStr ("GET /hello HTTP/1.1\r\nHost: x\r\n\r\n" ++ "GET / HTTP/2.0\r\nHost: x\r\n\r\n")
+  pure
+    [ ("serve: bad version → 505 response, connection closed", hasSub s505 "HTTP/1.1 505" && !k505),
+      ("serve: over body limit → 413 response, closed", hasSub s413 "HTTP/1.1 413" && !k413),
+      ("serve: smuggling (CL+TE) → 400 response, closed", hasSub s400 "HTTP/1.1 400" && !k400),
+      ("serve: missing Host → 400 response", hasSub sHost "HTTP/1.1 400"),
+      ("serve: valid then malformed pipelined → 200 then 505, closed",
+         hasSub sPipe "HTTP/1.1 200" && hasSub sPipe "HTTP/1.1 505" && !kPipe) ]
+
 /-! ### End-to-end: parse → route → respond → serialize -/
 
 def endToEnd : IO Bool := do
@@ -94,7 +120,8 @@ def endToEnd : IO Bool := do
 
 def groups : List (String × List Check) :=
   [ ("routing",  grpRouting),
-    ("response", grpResponse) ]
+    ("response", grpResponse),
+    ("error responses", errorConsistency) ]
 
 def run : IO (Nat × Nat) := do
   let mut total := 0
@@ -107,6 +134,11 @@ def run : IO (Nat × Nat) := do
       else
         failed := failed + 1
         IO.println s!"  FAIL  {name} :: {cname}"
+  -- malformed input → error responses over serveBuffer (IO)
+  for (cname, ok) in (← serveErrors) do
+    total := total + 1
+    if ok then IO.println s!"  ok    serve-error :: {cname}"
+    else failed := failed + 1; IO.println s!"  FAIL  serve-error :: {cname}"
   -- end-to-end (IO)
   total := total + 1
   let e2e ← endToEnd
